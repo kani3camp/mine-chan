@@ -6,6 +6,16 @@
 ./env/Scripts/activate
 ```
 
+### ローカルで実行
+```bash
+cd app
+uvicorn main:app
+```
+#### requirements.txtを最新化
+```bash
+pip freeze > requirements.txt
+```
+
 ### Cloud Runにデプロイする
 #### 初めての場合
 ```bash
