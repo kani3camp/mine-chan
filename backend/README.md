@@ -8,8 +8,7 @@
 
 ### ローカルで実行
 ```bash
-cd app
-uvicorn main:app
+uvicorn app.main:app
 ```
 #### requirements.txtを最新化
 ```bash

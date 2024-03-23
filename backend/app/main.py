@@ -2,6 +2,8 @@ from fastapi import FastAPI
 import firebase_admin
 from firebase_admin import firestore
 
+from app.schemas import CreateGame
+
 app = FastAPI()
 
 firebase_app = firebase_admin.initialize_app()
@@ -17,3 +19,16 @@ def get_hello():
         return doc.to_dict()
     else:
         return {"message": "no data"}
+
+
+
+
+@app.post("/game")
+def create_game(game_data: CreateGame):
+    # ゲームを作成
+    games = db.collection("games")
+    games.add()
+    
+    # フィールドを作成（初期化）
+    # 地雷を配置
+    
