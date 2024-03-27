@@ -5,6 +5,9 @@ from google.cloud import firestore
 
 from app.core import init_field
 from app.schemas import CreateGame, Game, Field
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -15,14 +18,12 @@ fields_collection = db.collection('fields')
 users_collection = db.collection('users')
 config_collection = db.collection("config")
 
-
-test_list = list()
+game_list: list[Game] = list()
 
 
 @app.get('/')
 async def root():
-    test_list.append(datetime.datetime.now())
-    return test_list
+    return {}
 
 
 @app.get("/hello")
@@ -33,6 +34,11 @@ async def get_hello():
         return doc.to_dict()
     else:
         return {"message": "no data"}
+
+
+@app.get('/game')
+async def get_games():
+    return game_list
 
 
 @app.post("/game")
