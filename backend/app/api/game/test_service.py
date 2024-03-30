@@ -1,7 +1,6 @@
 import dataclasses
 
-from app.api.game.model import Vertex
-from app.api.game.service import is_adjacent
+from ..game.model import Vertex, is_adjacent
 
 
 def test_is_adjacent():
