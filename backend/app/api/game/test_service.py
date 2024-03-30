@@ -1,6 +1,6 @@
 import dataclasses
 
-from ..db.model import Vertex, is_adjacent
+from ..db.model import Vertex
 
 
 def test_is_adjacent():
@@ -10,7 +10,7 @@ def test_is_adjacent():
         v2: Vertex
         is_adjacent: bool
     
-    testCases = [
+    test_cases = [
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(3, 3),
@@ -37,5 +37,5 @@ def test_is_adjacent():
             is_adjacent=False
         )
     ]
-    for testCase in testCases:
-        assert is_adjacent(testCase.v1, testCase.v2) == testCase.is_adjacent
+    for testCase in test_cases:
+        assert testCase.v1.is_adjacent(testCase.v2) == testCase.is_adjacent

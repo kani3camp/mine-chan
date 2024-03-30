@@ -1,28 +1,33 @@
-from pydantic import BaseModel, PositiveInt, NonNegativeInt
+from pydantic import BaseModel, PositiveInt, NonNegativeInt, Field
 
 
 class CreateGame(BaseModel):
-    num_player: PositiveInt
-    num_mines: PositiveInt
-    x: PositiveInt
-    y: PositiveInt
+    num_player: PositiveInt = Field(description='プレイヤー数')
+    num_mines: PositiveInt = Field(description='地雷の数')
+    x: PositiveInt = Field(description='x軸の長さ')
+    y: PositiveInt = Field(description='y軸の長さ')
     
     model_config = {
         'json_schema_extra': {
             'example': {
                 'num_player': 1,
                 'num_mines': 10,
-                'x': 10,
-                'y': 10
+                'x': 9,
+                'y': 9
             }
         }
     }
 
 
-class PlayGame(BaseModel):
-    x: NonNegativeInt
-    y: NonNegativeInt
+class DigSquare(BaseModel):
+    x: NonNegativeInt = Field(description='0始まりのx座標')
+    y: NonNegativeInt = Field(description='0始まりのy座標')
+
+
+class FlagSquare(BaseModel):
+    x: NonNegativeInt = Field(description='0始まりのx座標')
+    y: NonNegativeInt = Field(description='0始まりのy座標')
 
 
 class FieldResult(BaseModel):
-    squares: list[list[str]]
+    squares: list[str]
