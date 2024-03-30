@@ -1,9 +1,7 @@
-from google.cloud import firestore
-
 from .schema import CreateGame, PlayGame, FieldResult
 from .model import Game, Field, Vertex
-from app.db.db import games_collection, fields_collection
-from .service import in_field
+from app.db.db import games_collection
+from .model import in_field
 
 from fastapi import APIRouter, HTTPException
 
@@ -61,6 +59,5 @@ async def dig(game_id: str, request: PlayGame) -> FieldResult:
             x=field.x,
             y=field.y):
         raise HTTPException(status_code=400, detail='無効なマスです')
-    
     
     return
