@@ -12,7 +12,10 @@ app = FastAPI()
 # CORSを回避するために追加
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://mine-chan.web.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
