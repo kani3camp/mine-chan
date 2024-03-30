@@ -1,7 +1,9 @@
 FROM python:3.12-slim
 RUN apt-get -y update && apt-get -y upgrade
 
+EXPOSE 8080
 ENV HOSTNAME "0.0.0.0"
+ENV PORT 8080
 
 # アプリケーション専用のディレクトリ /app を作成し、ワークディレクトリとして設定
 WORKDIR /app
