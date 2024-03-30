@@ -1,13 +1,10 @@
+import app.db
 from .schema import CreateGame, PlayGame, FieldResult
 from .model import Game, Field, Vertex
-from app.db.db import games_collection
+from app.db import db
 from .model import in_field
 
 from fastapi import APIRouter, HTTPException
-
-from ...db import db
-from ...db.db import write_field
-from ...db.redis import read_game
 
 game_router = APIRouter(prefix='/game', tags=['game'])
 
@@ -19,7 +16,7 @@ async def get_games():
 
 @game_router.post("/", name='ゲームを作成する')
 async def create_game(request: CreateGame):
-    new_game_ref = games_collection.document()
+    new_game_ref = db.games_collection.document()
     game = Game(
         game_id=new_game_ref.id,
         num_players=request.num_player,
@@ -40,7 +37,7 @@ async def create_game(request: CreateGame):
     )
     
     # 地雷を配置
-    await write_field(field.to_dict())
+    await db.write_field(field.to_dict())
     
     return
 
