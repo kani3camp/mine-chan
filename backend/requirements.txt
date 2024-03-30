@@ -28,6 +28,7 @@ httptools==0.6.1
 idna==3.6
 iniconfig==2.0.0
 msgpack==1.0.8
+numpy==1.26.4
 packaging==24.0
 pluggy==1.4.0
 proto-plus==1.23.0
