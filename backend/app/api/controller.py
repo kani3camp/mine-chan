@@ -1,6 +1,6 @@
-from app.db.db import config_collection
-from app.db.redis import add_hello, read_hello
-from fastapi import FastAPI, APIRouter
+from .db.db import config_collection
+from .db.redis import add_hello, read_hello
+from fastapi import APIRouter
 from .game.controller import game_router
 
 api_router = APIRouter(prefix='/api')

@@ -1,7 +1,6 @@
-import app.db
 from .schema import CreateGame, PlayGame, FieldResult
 from .model import Game, Field, Vertex
-from app.db import db
+from ..db import db
 from .model import in_field
 
 from fastapi import APIRouter, HTTPException

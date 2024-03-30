@@ -2,7 +2,7 @@ import dataclasses
 import random
 from typing import List, Final
 
-from app.api.game.schema import FieldResult
+from .schema import FieldResult
 
 
 @dataclasses.dataclass

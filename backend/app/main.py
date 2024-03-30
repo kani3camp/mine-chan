@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from dotenv import load_dotenv
 
-from api.controller import api_router
+from .api.controller import api_router
 
 load_dotenv()
 
