@@ -2,7 +2,12 @@ import dataclasses
 import random
 from typing import List, Final
 
-from .schema import FieldResult
+from ..game.schema import FieldResult
+
+
+_X: Final[str] = '_X'
+FX: Final[str] = 'FX'
+X: Final[str] = 'X'
 
 
 @dataclasses.dataclass
@@ -89,6 +94,7 @@ class Field:
         # 1以上ならそのマスだけ表示
         
         # もし残りが地雷でない未開部分だけになったらゲームクリア
+        pass
 
 
 def is_adjacent(v1: Vertex, v2: Vertex) -> bool:

@@ -1,7 +1,8 @@
 from .schema import CreateGame, PlayGame, FieldResult
-from .model import Game, Field, Vertex
+from ..db.model import Game, Field, Vertex
 from ..db import db
-from .model import in_field
+from ..db.redis import r
+from ..db.model import in_field
 
 from fastapi import APIRouter, HTTPException
 
@@ -37,6 +38,7 @@ async def create_game(request: CreateGame):
     
     # 地雷を配置
     await db.write_field(field.to_dict())
+    await r.set(f"field:{new_game_ref.id}", field.to_dict())
     
     return
 
