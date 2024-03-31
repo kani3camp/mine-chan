@@ -7,7 +7,7 @@ steps:
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '-f',
       'backend/Dockerfile',
-      '.'
+      'backend'
     ]
     secretEnv: ['REDISHOST', 'REDISPORT', 'REDISPASS']
   # Push the container image to Container Registry
