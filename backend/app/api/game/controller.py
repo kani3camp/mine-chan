@@ -1,10 +1,10 @@
-from .schema import CreateGame, DigSquare, FieldResult, FlagSquare
-from ..db.model import Game, Field, Vertex
-from ..db import db
-from ..db.redis import r, read_games, push_game, set_field, read_field
-from ..db.model import in_field
-
 from fastapi import APIRouter, HTTPException
+
+from .schema import CreateGame, DigSquare, FieldResult, FlagSquare
+from ..db import db
+from ..db.model import Game, Field, Vertex
+from ..db.model import in_field
+from ..db.redis import read_games, push_game, set_field, read_field
 
 game_router = APIRouter(prefix='/game', tags=['game'])
 
@@ -20,8 +20,10 @@ async def get_game(game_id: str) -> FieldResult:
     field = await read_field(game_id)
     if field is None:
         raise HTTPException(status_code=404)
-    masked_squares = field.masked_squares()
-    return FieldResult(squares=masked_squares)
+    return FieldResult(
+        squares=field.masked_squares(),
+        game_state=field.game_state(),
+        mines_left=field.mines_left())
 
 
 @game_router.post("/", name='ゲームを作成する')
@@ -66,12 +68,14 @@ async def dig(game_id: str, request: DigSquare) -> FieldResult:
             height=field.height):
         raise HTTPException(status_code=400, detail='無効なマスです')
     
-    field.dig(x=request.x, y=request.y)
+    if not field.is_game_ended():
+        field.dig(x=request.x, y=request.y)
+    
     await set_field(game_id, field)
     
-    masked_squares = field.masked_squares()
-    
-    return FieldResult(squares=masked_squares)
+    return FieldResult(squares=field.masked_squares(),
+                       game_state=field.game_state(),
+                       mines_left=field.mines_left())
 
 
 @game_router.post("/{game_id}/flag", name='フラグをON/OFFする')
@@ -88,9 +92,12 @@ async def flag(game_id: str, request: FlagSquare) -> FieldResult:
             height=field.height):
         raise HTTPException(status_code=400, detail='無効なマスです')
     
-    field.flag(x=request.x, y=request.y)
+    if not field.is_game_ended():
+        field.flag(x=request.x, y=request.y)
+    
     await set_field(game_id, field)
     
-    masked_squares = field.masked_squares()
-    
-    return FieldResult(squares=masked_squares)
+    return FieldResult(
+        squares=field.masked_squares(),
+        game_state=field.game_state(),
+        mines_left=field.mines_left())

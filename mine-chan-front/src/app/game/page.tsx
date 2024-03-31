@@ -2,17 +2,15 @@
 import { Configuration, GameApi } from '@/types';
 import { set } from 'firebase/database';
 import { useState } from 'react';
+import { api } from '@/lib/api';
+import { on } from 'events';
+import { GameStateEnum } from '@/types/models/GameStateEnum';
 
 export default function Home() {
     const [squares, setSquares] = useState<string[]>([]);
     const [gameId, setGameId] = useState<string>('');
 
     const createNewGame = async () => {
-        const api = new GameApi(
-            new Configuration({
-                basePath: 'http://localhost:8080',
-            })
-        );
         const res = await api.apiGamePost({
             createGame: {
                 numPlayer: 1,
@@ -26,12 +24,6 @@ export default function Home() {
     };
 
     const getGame = async () => {
-        const api = new GameApi(
-            new Configuration({
-                basePath: 'http://localhost:8080',
-            })
-        );
-        console.log('gameId', gameId);
         const res = await api.apiGameGameIdGet({
             gameId: gameId,
         });
@@ -40,11 +32,6 @@ export default function Home() {
 
     const onSquareClick = async (x: number, y: number) => {
         console.log(x, y);
-        const api = new GameApi(
-            new Configuration({
-                basePath: 'http://localhost:8080',
-            })
-        );
         const res = await api.apiGameGameIdDigPost({
             gameId: gameId,
             digSquare: {
@@ -54,9 +41,13 @@ export default function Home() {
         });
         setSquares(res.squares);
 
-        // ゲームオーバーの場合
-        if (res.squares.flat().includes('X')) {
-            alert('ゲームオーバー');
+        switch (res.gameState) {
+            case GameStateEnum.GameOver:
+                alert('ゲームオーバー');
+                break;
+            case GameStateEnum.GameClear:
+                alert('ゲームクリア');
+                break;
         }
     };
 
@@ -66,13 +57,7 @@ export default function Home() {
         y: number
     ) => {
         e.preventDefault();
-
-        const api = new GameApi(
-            new Configuration({
-                basePath: 'http://localhost:8080',
-            })
-        );
-        const res = await api.apiGameGameIdFlagPost({
+        const res = await api.oNOFFApiGameGameIdFlagPost({
             gameId: gameId,
             flagSquare: {
                 x: x,
@@ -80,18 +65,27 @@ export default function Home() {
             },
         });
         setSquares(res.squares);
+
+        switch (res.gameState) {
+            case GameStateEnum.GameOver:
+                alert('ゲームオーバー');
+                break;
+            case GameStateEnum.GameClear:
+                alert('ゲームクリア');
+                break;
+        }
     };
 
     return (
         <main className=" p-24">
-            <h1 className="text-2xl font-bold">ゲーム {gameId}</h1>
+            <h1 className="text-2xl font-bold">ひとりプレイ {gameId}</h1>
 
             <button className="btn block my-1" onClick={createNewGame}>
-                ゲーム新規作成
+                ①ゲーム新規作成
             </button>
 
             <button className="btn block my-1" onClick={getGame}>
-                ゲーム取得
+                ②ゲーム取得
             </button>
 
             <div
@@ -101,6 +95,10 @@ export default function Home() {
                 {squares?.flat().map((square, i) => {
                     let color;
                     let onClick = () => {};
+                    let onContextMenu = (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        return false;
+                    };
                     let hover = '';
                     let text = '';
                     switch (square) {
@@ -112,6 +110,10 @@ export default function Home() {
                             color = 'bg-gray-300';
                             onClick = () =>
                                 onSquareClick(i % 9, Math.floor(i / 9));
+                            onContextMenu = (e: React.MouseEvent) => {
+                                handleRightClick(e, i % 9, Math.floor(i / 9));
+                                return false;
+                            };
                             hover = 'hover:bg-gray-400';
                             break;
                         case '0':
@@ -126,7 +128,15 @@ export default function Home() {
                                 }
                             } else if (square[0] === 'F') {
                                 text = '🚩';
-                                color = 'bg-white';
+                                color = 'bg-gray-300';
+                                onContextMenu = (e: React.MouseEvent) => {
+                                    handleRightClick(
+                                        e,
+                                        i % 9,
+                                        Math.floor(i / 9)
+                                    );
+                                    return false;
+                                };
                             } else {
                                 text = square;
                                 if (square === '1')
@@ -152,10 +162,7 @@ export default function Home() {
                             key={i}
                             className={`text-center  ${color} aspect-square flex items-center justify-center font-bold ${hover}`}
                             onClick={onClick}
-                            onContextMenu={(e) => {
-                                handleRightClick(e, i % 9, Math.floor(i / 9));
-                                return false;
-                            }}
+                            onContextMenu={onContextMenu}
                         >
                             <p>{text}</p>
                         </div>

@@ -39,17 +39,17 @@ export interface ApiGameGameIdDigPostRequest {
     digSquare: DigSquare;
 }
 
-export interface ApiGameGameIdFlagPostRequest {
-    gameId: string;
-    flagSquare: FlagSquare;
-}
-
 export interface ApiGameGameIdGetRequest {
     gameId: string;
 }
 
 export interface ApiGamePostRequest {
     createGame: CreateGame;
+}
+
+export interface ONOFFApiGameGameIdFlagPostRequest {
+    gameId: string;
+    flagSquare: FlagSquare;
 }
 
 /**
@@ -97,49 +97,6 @@ export class GameApi extends runtime.BaseAPI {
      */
     async apiGameGameIdDigPost(requestParameters: ApiGameGameIdDigPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FieldResult> {
         const response = await this.apiGameGameIdDigPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * フラグを立てる
-     */
-    async apiGameGameIdFlagPostRaw(requestParameters: ApiGameGameIdFlagPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FieldResult>> {
-        if (requestParameters['gameId'] == null) {
-            throw new runtime.RequiredError(
-                'gameId',
-                'Required parameter "gameId" was null or undefined when calling apiGameGameIdFlagPost().'
-            );
-        }
-
-        if (requestParameters['flagSquare'] == null) {
-            throw new runtime.RequiredError(
-                'flagSquare',
-                'Required parameter "flagSquare" was null or undefined when calling apiGameGameIdFlagPost().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/api/game/{game_id}/flag`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: FlagSquareToJSON(requestParameters['flagSquare']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => FieldResultFromJSON(jsonValue));
-    }
-
-    /**
-     * フラグを立てる
-     */
-    async apiGameGameIdFlagPost(requestParameters: ApiGameGameIdFlagPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FieldResult> {
-        const response = await this.apiGameGameIdFlagPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -239,6 +196,49 @@ export class GameApi extends runtime.BaseAPI {
      */
     async apiGamePost(requestParameters: ApiGamePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
         const response = await this.apiGamePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * フラグをOn/Offする
+     */
+    async oNOFFApiGameGameIdFlagPostRaw(requestParameters: ONOFFApiGameGameIdFlagPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FieldResult>> {
+        if (requestParameters['gameId'] == null) {
+            throw new runtime.RequiredError(
+                'gameId',
+                'Required parameter "gameId" was null or undefined when calling oNOFFApiGameGameIdFlagPost().'
+            );
+        }
+
+        if (requestParameters['flagSquare'] == null) {
+            throw new runtime.RequiredError(
+                'flagSquare',
+                'Required parameter "flagSquare" was null or undefined when calling oNOFFApiGameGameIdFlagPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/api/game/{game_id}/flag`.replace(`{${"game_id"}}`, encodeURIComponent(String(requestParameters['gameId']))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: FlagSquareToJSON(requestParameters['flagSquare']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FieldResultFromJSON(jsonValue));
+    }
+
+    /**
+     * フラグをOn/Offする
+     */
+    async oNOFFApiGameGameIdFlagPost(requestParameters: ONOFFApiGameGameIdFlagPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FieldResult> {
+        const response = await this.oNOFFApiGameGameIdFlagPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -3,6 +3,7 @@ import random
 from typing import List, Final
 
 import numpy as np
+from enum import Enum
 
 
 @dataclasses.dataclass
@@ -42,6 +43,12 @@ class Vertex:
             if v.x == another.x and v.y == another.y:
                 return True
         return False
+
+
+class GameStateEnum(str, Enum):
+    GAME_OVER = 'GAME_OVER'
+    GAME_CLEAR = 'GAME_CLEAR'
+    PLAYING = 'PLAYING'
 
 
 @dataclasses.dataclass
@@ -141,6 +148,26 @@ class Field:
         self.__open_square(x, y)
         return
     
+    def game_state(self) -> GameStateEnum:
+        """
+        ゲームの状態を返す。
+        """
+        if self.is_game_over():
+            return GameStateEnum.GAME_OVER
+        if self.is_game_cleared():
+            return GameStateEnum.GAME_CLEAR
+        return GameStateEnum.PLAYING
+    
+    def mines_left(self) -> int:
+        """
+        残り地雷数を返す。
+        """
+        count: int = 0
+        for square in self.squares:
+            if square == self.FLAGGED_MINE or square == self.HIDDEN_MINE or square == self.X:
+                count += 1
+        return self.num_mines - count
+    
     def __open_square(self, x: int, y: int) -> None:
         x_y: Final = self.flat(x, y)
         if self.squares[x_y] == '_0':
@@ -170,8 +197,6 @@ class Field:
         index: Final = self.flat(x, y)
         if not len(self.squares[index]) == 2:
             return
-        if self.is_game_ended():
-            return
         if self.squares[index].startswith('F'):
             self.squares[index] = '_' + self.squares[index][1]
         else:
@@ -188,7 +213,7 @@ class Field:
         ゲームクリアしたかどうかを返す。
         """
         for square in self.squares:
-            if square.startswith('_'):
+            if square.startswith('_') and square != self.HIDDEN_MINE:
                 return False
         return True
     

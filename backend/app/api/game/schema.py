@@ -1,5 +1,7 @@
 from pydantic import BaseModel, PositiveInt, NonNegativeInt, Field
 
+from app.api.db.model import GameStateEnum
+
 
 class CreateGame(BaseModel):
     num_player: PositiveInt = Field(description='プレイヤー数')
@@ -30,4 +32,6 @@ class FlagSquare(BaseModel):
 
 
 class FieldResult(BaseModel):
-    squares: list[str]
+    squares: list[str] = ...
+    game_state: GameStateEnum = ...
+    mines_left: NonNegativeInt = Field(description='残り地雷数')

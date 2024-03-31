@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { GameStateEnum } from './GameStateEnum';
+import {
+    GameStateEnumFromJSON,
+    GameStateEnumFromJSONTyped,
+    GameStateEnumToJSON,
+} from './GameStateEnum';
+
 /**
  * 
  * @export
@@ -25,6 +32,18 @@ export interface FieldResult {
      * @memberof FieldResult
      */
     squares: Array<string>;
+    /**
+     * 
+     * @type {GameStateEnum}
+     * @memberof FieldResult
+     */
+    gameState: GameStateEnum;
+    /**
+     * 残り地雷数
+     * @type {number}
+     * @memberof FieldResult
+     */
+    minesLeft: number;
 }
 
 /**
@@ -32,6 +51,8 @@ export interface FieldResult {
  */
 export function instanceOfFieldResult(value: object): boolean {
     if (!('squares' in value)) return false;
+    if (!('gameState' in value)) return false;
+    if (!('minesLeft' in value)) return false;
     return true;
 }
 
@@ -46,6 +67,8 @@ export function FieldResultFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'squares': json['squares'],
+        'gameState': GameStateEnumFromJSON(json['game_state']),
+        'minesLeft': json['mines_left'],
     };
 }
 
@@ -56,6 +79,8 @@ export function FieldResultToJSON(value?: FieldResult | null): any {
     return {
         
         'squares': value['squares'],
+        'game_state': GameStateEnumToJSON(value['gameState']),
+        'mines_left': value['minesLeft'],
     };
 }
 
