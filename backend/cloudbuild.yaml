@@ -2,12 +2,31 @@ steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/IMAGE', '.' ]
+    secretEnv: ['REDISHOST', 'REDISPORT', 'REDISPASS']
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', 'gcr.io/$PROJECT_ID/IMAGE' ]
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
-    args: [ 'run', 'deploy', 'SERVICE_NAME', '--image', 'gcr.io/$PROJECT_ID/IMAGE', '--region', '$LOCATION' ]
+    args: [
+      'run',
+      'deploy',
+      'SERVICE_NAME',
+      '--image',
+      'gcr.io/$PROJECT_ID/IMAGE',
+      '--region',
+      '$LOCATION'
+    ]
 images:
   - gcr.io/$PROJECT_ID/IMAGE
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/upstash-mine-chan-host/versions/1
+      env: 'REDISHOST'
+    - versionName: projects/$PROJECT_ID/secrets/upstash-mine-chan-port/versions/1
+      env: 'REDISPORT'
+    - versionName: projects/$PROJECT_ID/secrets/upstash-mine-chan-password/versions/1
+      env: 'REDISPASS'
+
