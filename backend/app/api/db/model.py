@@ -86,19 +86,21 @@ class Field:
     
     def init_mines(
             self,
-            x: int,
-            y: int,
+            width: int,
+            height: int,
             num_mines: int,
             first_vertex: Vertex,
     ) -> None:
-        """マインスイーパーのフィールドに地雷を配置する。"""
-        if not 0 <= num_mines <= x * y:
+        """
+        フィールドに地雷を配置する。初回に開けるマスとその周囲には地雷を配置しない。
+        """
+        if not 0 <= num_mines <= width * height:
             raise ValueError("地雷の数が多すぎる")
         
         mines: set[Vertex] = set()  # setを使うことで重複を防ぐ
         while len(mines) < num_mines:
-            rand_x = random.randint(0, x - 1)
-            rand_y = random.randint(0, y - 1)
+            rand_x = random.randint(0, width - 1)
+            rand_y = random.randint(0, height - 1)
             if first_vertex.is_adjacent(Vertex(x=rand_x, y=rand_y)):
                 continue
             if Vertex(rand_x, rand_y) in mines:
@@ -107,8 +109,8 @@ class Field:
         
         # フィールドを初期化
         squares: list[str] = list()
-        for i in range(x):
-            for j in range(y):
+        for j in range(height):
+            for i in range(width):
                 if Vertex(x=i, y=j) in mines:
                     squares.append(self.HIDDEN_MINE)
                     continue
@@ -124,18 +126,17 @@ class Field:
         
         self.squares = squares
     
-    def flat(self, x: int, y: int) -> int:
+    def flatten_index(self, x: int, y: int) -> int:
         """
         2次元座標を1次元座標に変換する。
         """
-        print(f'x: {x}, y: {y}, width: {self.width}, height: {self.height}')
         assert 0 <= x < self.width
         assert 0 <= y < self.height
         # TODO: イキってnp使ってるが、普通にself.width * y + xでいいかも
         return np.ravel_multi_index((y, x), (self.height, self.width))
     
     def dig(self, x: int, y: int) -> None:
-        index: Final = self.flat(x, y)
+        index: Final = self.flatten_index(x, y)
         """
         マスを開けたあとの全マスの状況を返す。
         """
@@ -169,7 +170,7 @@ class Field:
         return self.num_mines - count
     
     def __open_square(self, x: int, y: int) -> None:
-        x_y: Final = self.flat(x, y)
+        x_y: Final = self.flatten_index(x, y)
         if self.squares[x_y] == '_0':
             remaining_0: list[Vertex] = [Vertex(x, y)]
             while len(remaining_0) > 0:
@@ -179,7 +180,7 @@ class Field:
                     for j in range(v.y - 1, v.y + 2):
                         if not in_field(v=Vertex(i, j), width=self.width, height=self.height):
                             continue
-                        i_j = self.flat(i, j)
+                        i_j = self.flatten_index(i, j)
                         if not self.squares[i_j].startswith('_'):
                             continue
                         elif self.squares[i_j] == '_0':
@@ -194,7 +195,7 @@ class Field:
         """
         マスのフラグをON・OFFする。
         """
-        index: Final = self.flat(x, y)
+        index: Final = self.flatten_index(x, y)
         if not len(self.squares[index]) == 2:
             return
         if self.squares[index].startswith('F'):

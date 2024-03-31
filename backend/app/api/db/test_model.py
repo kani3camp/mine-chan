@@ -82,7 +82,7 @@ def test_flat(width, height, x, y, expected):
         height=height,
         squares=[],
     )
-    assert field.flat(x=x, y=y) == expected
+    assert field.flatten_index(x=x, y=y) == expected
 
 
 @pytest.mark.parametrize(

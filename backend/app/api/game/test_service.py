@@ -8,34 +8,34 @@ def test_is_adjacent():
     class TestCase:
         v1: Vertex
         v2: Vertex
-        is_adjacent: bool
+        expected: bool
     
     test_cases = [
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(3, 3),
-            is_adjacent=True
+            expected=True
         ),
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(2, 3),
-            is_adjacent=True,
+            expected=True,
         ),
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(2, 2),
-            is_adjacent=True
+            expected=True
         ),
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(4, 4),
-            is_adjacent=True
+            expected=True
         ),
         TestCase(
             v1=Vertex(3, 3),
             v2=Vertex(1, 1),
-            is_adjacent=False
+            expected=False
         )
     ]
     for testCase in test_cases:
-        assert testCase.v1.is_adjacent(testCase.v2) == testCase.is_adjacent
+        assert testCase.v1.is_adjacent(testCase.v2) == testCase.expected
