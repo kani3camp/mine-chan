@@ -26,6 +26,7 @@ steps:
       '$LOCATION',
       '--set-env-vars=REDISHOST=$$REDISHOST,REDISPORT=$$REDISPORT,REDISPASS=$$REDISPASS'
     ]
+    secretEnv: ['REDISHOST', 'REDISPORT', 'REDISPASS']
 images:
   - gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA
 
