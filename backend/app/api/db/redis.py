@@ -7,8 +7,11 @@ from .model import Field
 
 r = redis.Redis(
     host=os.environ.get('REDISHOST', 'localhost'),
-    port=os.environ.get('REDISPORT', '6379'),
-    decode_responses=True)
+    port=os.environ.get('REDISPORT', 6379),
+    password=os.environ.get('REDISPASS', None),
+    ssl='REDISPASS' in os.environ,
+    decode_responses=True,
+)
 
 
 async def push_game(game_id):
