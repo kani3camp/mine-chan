@@ -168,11 +168,38 @@ class Field:
         マスのフラグをON・OFFする。
         """
         index: Final = self.flat(x, y)
-        assert len(self.squares[index]) == 2
+        if not len(self.squares[index]) == 2:
+            return
+        if self.is_game_ended():
+            return
         if self.squares[index].startswith('F'):
             self.squares[index] = '_' + self.squares[index][1]
         else:
             self.squares[index] = 'F' + self.squares[index][1]
+    
+    def is_game_ended(self) -> bool:
+        """
+        ゲームが終了したかどうかを返す。
+        """
+        return self.is_game_cleared() or self.is_game_over()
+    
+    def is_game_cleared(self) -> bool:
+        """
+        ゲームクリアしたかどうかを返す。
+        """
+        for square in self.squares:
+            if square.startswith('_'):
+                return False
+        return True
+    
+    def is_game_over(self) -> bool:
+        """
+        ゲームオーバーしたかどうかを返す。
+        """
+        for square in self.squares:
+            if square == self.X:
+                return True
+        return False
     
     def masked_squares(self) -> list[str]:
         """

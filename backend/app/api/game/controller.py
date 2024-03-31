@@ -74,7 +74,7 @@ async def dig(game_id: str, request: DigSquare) -> FieldResult:
     return FieldResult(squares=masked_squares)
 
 
-@game_router.post("/{game_id}/flag", name='フラグを立てる')
+@game_router.post("/{game_id}/flag", name='フラグをON/OFFする')
 async def flag(game_id: str, request: FlagSquare) -> FieldResult:
     field: Field | None = await read_field(game_id=game_id)
     if field is None:
