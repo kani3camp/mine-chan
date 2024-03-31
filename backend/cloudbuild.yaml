@@ -23,7 +23,8 @@ steps:
       '--image',
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
-      '$LOCATION'
+      '$LOCATION',
+      '--set-env-vars=REDISHOST=$$REDISHOST,REDISPORT=$$REDISPORT,REDISPASS=$$REDISPASS'
     ]
 images:
   - gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA
