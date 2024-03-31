@@ -19,7 +19,7 @@ steps:
     args: [
       'run',
       'deploy',
-      'SERVICE_NAME',
+      'mine-chan',
       '--image',
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
