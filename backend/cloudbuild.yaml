@@ -24,7 +24,7 @@ steps:
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
       '$LOCATION',
-      '--update-secrets=REDISHOST=REDISHOST:latest,REDISPORT=REDISPORT:latest,REDISPASS=REDISPASS:latest'
+      '--update-secrets=REDISHOST=upstash-mine-chan-host:latest,REDISPORT=upstash-mine-chan-port:latest,REDISPASS=upstash-mine-chan-password:latest'
     ]
 images:
   - gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA
