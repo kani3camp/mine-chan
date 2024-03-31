@@ -23,7 +23,7 @@ steps:
       '--image',
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
-      '$LOCATION',
+      'asia-northeast1',
       '--update-secrets=REDISHOST=upstash-mine-chan-host:latest,REDISPORT=upstash-mine-chan-port:latest,REDISPASS=upstash-mine-chan-password:latest'
     ]
 images:
