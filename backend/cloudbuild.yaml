@@ -24,6 +24,9 @@ steps:
       'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
       'asia-northeast1',
+      '--allow-unauthenticated',
+      '--max-instances=1',
+      '--min-instances=0',
       '--update-secrets=REDISHOST=upstash-mine-chan-host:latest,REDISPORT=upstash-mine-chan-port:latest,REDISPASS=upstash-mine-chan-password:latest'
     ]
 images:
