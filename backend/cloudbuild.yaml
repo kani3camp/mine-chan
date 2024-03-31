@@ -1,11 +1,11 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/IMAGE', '.' ]
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA', '.' ]
     secretEnv: ['REDISHOST', 'REDISPORT', 'REDISPASS']
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'gcr.io/$PROJECT_ID/IMAGE' ]
+    args: [ 'push', 'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA' ]
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -14,12 +14,12 @@ steps:
       'deploy',
       'SERVICE_NAME',
       '--image',
-      'gcr.io/$PROJECT_ID/IMAGE',
+      'gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA',
       '--region',
       '$LOCATION'
     ]
 images:
-  - gcr.io/$PROJECT_ID/IMAGE
+  - gcr.io/$PROJECT_ID/$REPO_NAME/$SHORT_SHA
 
 availableSecrets:
   secretManager:
