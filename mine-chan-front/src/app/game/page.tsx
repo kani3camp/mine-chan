@@ -14,7 +14,7 @@ export default function Home() {
         const res = await api.apiGamePost({
             createGame: {
                 numPlayer: 1,
-                numMines: 10,
+                numMines: 20,
                 x: 9,
                 y: 9,
             },
@@ -80,11 +80,17 @@ export default function Home() {
         <main className=" p-24">
             <h1 className="text-2xl font-bold">ひとりプレイ {gameId}</h1>
 
-            <button className="btn block my-1" onClick={createNewGame}>
+            <button
+                className="block my-2 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
+                onClick={createNewGame}
+            >
                 ①ゲーム新規作成
             </button>
 
-            <button className="btn block my-1" onClick={getGame}>
+            <button
+                className="block my-2 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
+                onClick={getGame}
+            >
                 ②ゲーム取得
             </button>
 

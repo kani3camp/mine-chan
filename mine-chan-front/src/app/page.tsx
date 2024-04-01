@@ -24,12 +24,17 @@ export default function Home() {
                     id="num_bomb"
                     className="w-full block border border-gray-200 leading-tight focus:outline-none"
                 />
-                <button className="p-2.5 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+                <button className="my-2 p-2.5 bg-transparent hover:bg-pink-500 text-pink-700 font-semibold hover:text-white py-2 px-4 border border-pink-500 hover:border-transparent rounded">
                     ひとりプレイ
                 </button>
             </div>
 
-            <Link href={'/game'}>ゲーム画面へ</Link>
+            <Link
+                href={'/game'}
+                className="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-full"
+            >
+                ゲーム画面へ
+            </Link>
         </main>
     );
 }
