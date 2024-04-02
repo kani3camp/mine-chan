@@ -69,16 +69,21 @@ async def dig(game_id: str, request: DigSquare) -> FieldResult:
     # 初めてマスを開ける場合は地雷を配置
     if field.squares == [''] * field.width * field.height:
         print('初回：地雷を配置')
-        field.init_mines(width=field.width, height=field.height, num_mines=field.num_mines, first_vertex=Vertex(request.x, request.y))
+        field.init_mines(
+            width=field.width,
+            height=field.height,
+            num_mines=field.num_mines,
+            first_vertex=Vertex(request.x, request.y))
     
     if not field.is_game_ended():
         field.dig(x=request.x, y=request.y)
     
     await set_field(game_id, field)
     
-    return FieldResult(squares=field.masked_squares(),
-                       game_state=field.game_state(),
-                       mines_left=field.mines_left())
+    return FieldResult(
+        squares=field.masked_squares(),
+        game_state=field.game_state(),
+        mines_left=field.mines_left())
 
 
 @game_router.post("/{game_id}/flag", name='フラグをON/OFFする')

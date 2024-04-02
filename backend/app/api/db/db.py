@@ -1,6 +1,6 @@
-from fastapi import FastAPI
+from typing import Optional
+
 from google.cloud import firestore
-from google.cloud.firestore_v1 import AsyncDocumentReference
 
 db = firestore.AsyncClient()
 
@@ -15,7 +15,7 @@ async def write_field(data: dict) -> None:
     await field_ref.set(data)
 
 
-async def read_field(game_id: str):
+async def read_field(game_id: str) -> Optional[dict]:
     doc_ref = fields_collection.document(game_id)
     doc = await doc_ref.get()
     if doc.exists:

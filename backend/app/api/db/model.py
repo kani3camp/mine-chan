@@ -161,13 +161,13 @@ class Field:
     
     def mines_left(self) -> int:
         """
-        残り地雷数を返す。
+        全地雷数 - フラグ数
         """
-        count: int = 0
+        flag_count: int = 0
         for square in self.squares:
-            if square == self.FLAGGED_MINE or square == self.HIDDEN_MINE or square == self.X:
-                count += 1
-        return self.num_mines - count
+            if square.startswith('F'):
+                flag_count += 1
+        return self.num_mines - flag_count
     
     def __open_square(self, x: int, y: int) -> None:
         x_y: Final = self.flatten_index(x, y)
@@ -233,6 +233,7 @@ class Field:
         フラグが立っているマスはFに変換する。
         フラグ以外で開いてないマスは空文字列に変換する。
         ただし、地雷が開かれていてゲームオーバーの場合はマスクせずそのまま返す。
+        TODO: 地雷じゃない場所にフラグあるなら
         """
         masked_squares: list[str] = list()
         for square in self.squares:
