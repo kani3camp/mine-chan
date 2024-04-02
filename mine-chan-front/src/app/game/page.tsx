@@ -162,8 +162,10 @@ export default function Home() {
                             if (square[0] === '_') {
                                 if (square[1] === 'X') {
                                     text = '💣';
+                                    color = 'bg-gray-300';
                                 } else {
                                     text = square[1];
+                                    color = 'bg-gray-300';
                                 }
                             } else if (square[0] === 'F') {
                                 text = '🚩';

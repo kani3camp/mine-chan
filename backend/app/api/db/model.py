@@ -232,9 +232,12 @@ class Field:
         クライアント向けにフィールドをマスクする。
         フラグが立っているマスはFに変換する。
         フラグ以外で開いてないマスは空文字列に変換する。
-        ただし、地雷が開かれていてゲームオーバーの場合はマスクせずそのまま返す。
+        ただし、ゲームクリア及びゲームオーバーの場合はマスクせずそのまま返す。
         TODO: 地雷じゃない場所にフラグあるなら
         """
+        if self.is_game_ended():
+            return self.squares
+        
         masked_squares: list[str] = list()
         for square in self.squares:
             if self.is_flagged(square):
