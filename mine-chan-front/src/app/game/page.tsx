@@ -1,16 +1,24 @@
 'use client';
-import { Configuration, GameApi } from '@/types';
-import { set } from 'firebase/database';
-import { useState } from 'react';
+import { Configuration, FieldResult, GameApi } from '@/types';
+import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
-import { on } from 'events';
 import { GameStateEnum } from '@/types/models/GameStateEnum';
+import { useLongPress } from 'use-long-press';
 
 export default function Home() {
     const [squares, setSquares] = useState<string[]>([]);
     const [gameId, setGameId] = useState<string>('');
+    const [loadingCreateGame, setLoadingCreateGame] = useState<boolean>(false);
+    const [loadingGetGame, setLoadingGetGame] = useState<boolean>(false);
+    const [numMines, setNumMines] = useState<number>(-1);
+    const [flagMode, setFlagMode] = useState<boolean>(false);
+
+    const longPressBind = useLongPress(() => {
+        console.log('long press');
+    });
 
     const createNewGame = async () => {
+        setLoadingCreateGame(true);
         const res = await api.apiGamePost({
             createGame: {
                 numPlayer: 1,
@@ -19,18 +27,22 @@ export default function Home() {
                 y: 9,
             },
         });
+        setLoadingCreateGame(false);
         console.log(res);
         setGameId(res);
     };
 
     const getGame = async () => {
-        const res = await api.apiGameGameIdGet({
+        setLoadingGetGame(true);
+        const res: FieldResult = await api.apiGameGameIdGet({
             gameId: gameId,
         });
+        setLoadingGetGame(false);
         setSquares(res.squares);
+        setNumMines(res.minesLeft);
     };
 
-    const onSquareClick = async (x: number, y: number) => {
+    const handleSquareClick = async (x: number, y: number) => {
         console.log(x, y);
         const res = await api.apiGameGameIdDigPost({
             gameId: gameId,
@@ -40,6 +52,7 @@ export default function Home() {
             },
         });
         setSquares(res.squares);
+        setNumMines(res.minesLeft);
 
         switch (res.gameState) {
             case GameStateEnum.GameOver:
@@ -51,12 +64,12 @@ export default function Home() {
         }
     };
 
-    const handleRightClick = async (
-        e: React.MouseEvent,
-        x: number,
-        y: number
-    ) => {
-        e.preventDefault();
+    /**
+     * フラグをON/OFFする
+     * @param x
+     * @param y
+     */
+    const flagSquare = async (x: number, y: number) => {
         const res = await api.oNOFFApiGameGameIdFlagPost({
             gameId: gameId,
             flagSquare: {
@@ -65,6 +78,7 @@ export default function Home() {
             },
         });
         setSquares(res.squares);
+        setNumMines(res.minesLeft);
 
         switch (res.gameState) {
             case GameStateEnum.GameOver:
@@ -77,34 +91,54 @@ export default function Home() {
     };
 
     return (
-        <main className=" p-24">
+        <main className="p-10">
             <h1 className="text-2xl font-bold">ひとりプレイ {gameId}</h1>
 
-            <button
-                className="block my-2 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
-                onClick={createNewGame}
-            >
-                ①ゲーム新規作成
-            </button>
+            <div className="my-2 flex content-center">
+                <button className="btn btn-secondary" onClick={createNewGame}>
+                    ①ゲーム新規作成
+                </button>
+                {loadingCreateGame && (
+                    <span className="loading loading-spinner loading-md m-1"></span>
+                )}
+            </div>
 
-            <button
-                className="block my-2 bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded"
-                onClick={getGame}
-            >
-                ②ゲーム取得
-            </button>
+            <div className="my-2 flex content-center">
+                <button className="btn btn-secondary" onClick={getGame}>
+                    ②ゲーム取得
+                </button>
+                {loadingGetGame && (
+                    <span className="loading loading-spinner loading-md m-1"></span>
+                )}
+            </div>
+
+            <div>
+                <p>残り{numMines}個</p>
+            </div>
+
+            <div className="form-control">
+                <label className="label cursor-pointer">
+                    <span className="label-text">
+                        フラグ🚩モード（実装予定）
+                    </span>
+                    <input
+                        type="checkbox"
+                        className="toggle toggle-secondary"
+                        onChange={(e) => {
+                            setFlagMode(e.target.checked);
+                        }}
+                    />
+                </label>
+            </div>
 
             <div
                 id="field"
-                className="p-1 outline bg-gray-100 aspect-square my-10 grid grid-cols-9 gap-1 w-96 h-96 select-none"
+                className="p-1 outline bg-gray-100 aspect-square my-4 grid grid-cols-9 gap-1 w-96 h-96 select-none"
             >
                 {squares?.flat().map((square, i) => {
                     let color;
                     let onClick = () => {};
-                    let onContextMenu = (e: React.MouseEvent) => {
-                        e.preventDefault();
-                        return false;
-                    };
+                    let onContextMenu = () => {};
                     let hover = '';
                     let text = '';
                     switch (square) {
@@ -115,10 +149,9 @@ export default function Home() {
                         case '':
                             color = 'bg-gray-300';
                             onClick = () =>
-                                onSquareClick(i % 9, Math.floor(i / 9));
-                            onContextMenu = (e: React.MouseEvent) => {
-                                handleRightClick(e, i % 9, Math.floor(i / 9));
-                                return false;
+                                handleSquareClick(i % 9, Math.floor(i / 9));
+                            onContextMenu = () => {
+                                flagSquare(i % 9, Math.floor(i / 9));
                             };
                             hover = 'hover:bg-gray-400';
                             break;
@@ -135,13 +168,8 @@ export default function Home() {
                             } else if (square[0] === 'F') {
                                 text = '🚩';
                                 color = 'bg-gray-300';
-                                onContextMenu = (e: React.MouseEvent) => {
-                                    handleRightClick(
-                                        e,
-                                        i % 9,
-                                        Math.floor(i / 9)
-                                    );
-                                    return false;
+                                onContextMenu = () => {
+                                    flagSquare(i % 9, Math.floor(i / 9));
                                 };
                             } else {
                                 text = square;
@@ -168,7 +196,13 @@ export default function Home() {
                             key={i}
                             className={`text-center  ${color} aspect-square flex items-center justify-center font-bold ${hover}`}
                             onClick={onClick}
-                            onContextMenu={onContextMenu}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                onContextMenu();
+                            }}
+                            {...longPressBind(() => {
+                                onContextMenu();
+                            })}
                         >
                             <p>{text}</p>
                         </div>
