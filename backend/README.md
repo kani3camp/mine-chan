@@ -6,7 +6,10 @@ GOOGLE_CREDENTIALS
 
 ## venvを作成
 ### windowsの場合
-TODO
+uvを使用。
+```shell
+uv venv
+```
 
 ### macの場合
 ```bash
@@ -17,7 +20,7 @@ python -m venv venv
 ## venvに入る
 ### windowsの場合
 ```bash
-./env/Scripts/activate
+.venv/Scripts/activate
 ```
 
 ### macの場合
@@ -28,6 +31,10 @@ source env/bin/activate
 ## 依存パッケージをインストール
 ```bash
 pip install -r requirements.txt
+```
+uvの場合
+```shell
+uv pip sync requirements.txt
 ```
 
 ### ローカルで実行
