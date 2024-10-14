@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { GameStateEnum } from '@/types/models/GameStateEnum';
 import { useLongPress } from 'use-long-press';
+import { createGame, getGameById, digByGameId, onOffFlag } from './actions';
 
 export default function Home() {
     const [squares, setSquares] = useState<string[]>([]);
@@ -19,14 +20,14 @@ export default function Home() {
 
     const createNewGame = async () => {
         setLoadingCreateGame(true);
-        const res = await api.apiGamePost({
+        const res = await createGame({
             createGame: {
                 numPlayer: 1,
                 numMines: 20,
                 x: 9,
                 y: 9,
             },
-        });
+        })
         setLoadingCreateGame(false);
         console.log(res);
         setGameId(res);
@@ -34,7 +35,7 @@ export default function Home() {
 
     const getGame = async () => {
         setLoadingGetGame(true);
-        const res: FieldResult = await api.apiGameGameIdGet({
+        const res = await getGameById({
             gameId: gameId,
         });
         setLoadingGetGame(false);
@@ -44,7 +45,7 @@ export default function Home() {
 
     const handleSquareClick = async (x: number, y: number) => {
         console.log(x, y);
-        const res = await api.apiGameGameIdDigPost({
+        const res = await digByGameId({
             gameId: gameId,
             digSquare: {
                 x: x,
@@ -70,7 +71,7 @@ export default function Home() {
      * @param y
      */
     const flagSquare = async (x: number, y: number) => {
-        const res = await api.oNOFFApiGameGameIdFlagPost({
+        const res = await onOffFlag({
             gameId: gameId,
             flagSquare: {
                 x: x,
