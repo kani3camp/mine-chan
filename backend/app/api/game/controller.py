@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schema import CreateGame, DigSquare, FieldResult, FlagSquare
-from ..db import db
-from ..db.model import Game, Field, Vertex
+from ..db import model
+from ..db.db import get_db
+from ..db.model import Field, Vertex
 from ..db.model import in_field
 from ..db.redis import read_games, push_game, set_field, read_field
 
@@ -16,7 +19,7 @@ async def get_games() -> list[str]:
 
 
 @game_router.get("/{game_id}", name='ゲームを取得する')
-async def get_game(game_id: str) -> FieldResult:
+async def get_game(game_id: int) -> FieldResult:
     field = await read_field(game_id)
     if field is None:
         raise HTTPException(status_code=404)
@@ -27,35 +30,44 @@ async def get_game(game_id: str) -> FieldResult:
 
 
 @game_router.post("/", name='ゲームを作成する')
-async def create_game(request: CreateGame) -> str:
-    new_game_ref = db.games_collection.document()
-    game = Game(
-        game_id=new_game_ref.id,
+async def create_game(request: CreateGame, rdb: AsyncSession = Depends(get_db)) -> int:
+    new_game = model.Game(
         num_players=request.num_player,
         num_mines=request.num_mines,
-        created_by=''
     )
-    await new_game_ref.set(vars(game))
-    
+    rdb.add(new_game)
+    try:
+        await rdb.commit()
+        await rdb.refresh(new_game)
+    except IntegrityError:
+        await rdb.rollback()
+        raise HTTPException(status_code=400, detail='TODO') # TODO
+
     # フィールドを作成（初期化）
-    field = Field(
-        game_id=new_game_ref.id,
+    field = model.Field(
+        game_id=new_game.game_id,
         num_mines=request.num_mines,
         width=request.x,
         height=request.y,
         squares=[''] * request.x * request.y,
     )
+    rdb.add(field)   # TODO: db.pyの関数を使うようにする
+    try:
+        await rdb.commit()
+        await rdb.refresh(field)
+    except IntegrityError:
+        await rdb.rollback()
+        raise HTTPException(status_code=400, detail='TODO') # TODO
     
     # 地雷を配置
-    await db.write_field(field.to_dict())
-    await set_field(new_game_ref.id, field)
-    await push_game(new_game_ref.id)
+    await set_field(new_game.game_id, field)
+    await push_game(new_game.game_id)
     
-    return new_game_ref.id
+    return new_game.game_id
 
 
 @game_router.post("/{game_id}/dig", name='マスを開ける')
-async def dig(game_id: str, request: DigSquare) -> FieldResult:
+async def dig(game_id: int, request: DigSquare) -> FieldResult:
     field: Field | None = await read_field(game_id=game_id)
     if field is None:
         raise HTTPException(status_code=404)
@@ -87,7 +99,7 @@ async def dig(game_id: str, request: DigSquare) -> FieldResult:
 
 
 @game_router.post("/{game_id}/flag", name='フラグをON/OFFする')
-async def flag(game_id: str, request: FlagSquare) -> FieldResult:
+async def flag(game_id: int, request: FlagSquare) -> FieldResult:
     field: Field | None = await read_field(game_id=game_id)
     if field is None:
         raise HTTPException(status_code=404)

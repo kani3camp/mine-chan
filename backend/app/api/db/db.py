@@ -1,29 +1,36 @@
-from typing import Optional
+# app/database.py
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
 
-from google.cloud import firestore
+from .base import Base
 
-db = firestore.AsyncClient()
+# load_dotenv()  # .envファイルから環境変数をロード
 
-games_collection = db.collection('games')
-fields_collection = db.collection('fields')
-users_collection = db.collection('users')
-config_collection = db.collection("config")
+# 環境変数からPostgreSQL接続情報を取得
+POSTGRES_USER = os.getenv("POSTGRES_USER", "your_username")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "your_password")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "your_database")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 
-
-async def write_field(data: dict) -> None:
-    field_ref = fields_collection.document()
-    await field_ref.set(data)
-
-
-async def read_field(game_id: str) -> Optional[dict]:
-    doc_ref = fields_collection.document(game_id)
-    doc = await doc_ref.get()
-    if doc.exists:
-        return doc.to_dict()
-    else:
-        return None
+# DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 
-async def update_field_mines(game_id: str, mines: list) -> None:
-    doc_ref = fields_collection.document(game_id)
-    await doc_ref.update({'mines': mines})
+engine: AsyncEngine = create_async_engine(
+    DATABASE_URL,
+    echo=True,  # SQLのログを出力（開発時のみ有効）
+)
+
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session

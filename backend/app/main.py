@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from .api.controller import api_router
 from fastapi.middleware.cors import CORSMiddleware
+from .api.db.model import Game, Field
 
 load_dotenv()
 
@@ -13,7 +14,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost",
+        "*",    # TODO 適切に設定する
+        "http://localhost:8088",
         "https://mine-chan.web.app"
     ],
     allow_credentials=True,

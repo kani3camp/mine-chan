@@ -5,13 +5,20 @@ from typing import List, Final
 import numpy as np
 from enum import Enum
 
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.declarative import declarative_base
+
+from .base import Base
+
 
 @dataclasses.dataclass
-class Game:
-    game_id: str
-    num_players: int
-    num_mines: int
-    created_by: str
+class Game(Base):
+    __tablename__ = 'games'
+
+    game_id: int = Column(Integer, primary_key=True)
+    num_players: int = Column(Integer, nullable=False)
+    num_mines: int = Column(Integer, nullable=False)
 
 
 @dataclasses.dataclass
@@ -52,12 +59,14 @@ class GameStateEnum(str, Enum):
 
 
 @dataclasses.dataclass
-class Field:
-    game_id: str
-    num_mines: int
-    width: int
-    height: int
-    squares: List[str]
+class Field(Base):
+    __tablename__ = 'fields'
+
+    game_id: int = Column(Integer, primary_key=True)
+    num_mines: int = Column(Integer, nullable=False)
+    width: int = Column(Integer, nullable=False)
+    height: int = Column(Integer, nullable=False)
+    squares: List[str] = Column(JSONB, nullable=False)
     
     # クラス定数
     HIDDEN_MINE: Final[str] = '_X'
